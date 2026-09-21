@@ -4,11 +4,16 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 public class PlayerMovement : MonoBehaviour
 {
+    [Header("GoundCheck")]
+    public Transform GroundCheckPoint;
+    public float Radius;
+    private int groundLayer { get { return 1 << LayerMask.NameToLayer("Ground"); } }
     private PlayerInput playerInput;
     private Animator myAnim;
     private Rigidbody2D rb2D;
 
     private Vector2 movementVector;
+    private float jumpForce = 7f; 
     [SerializeField] private float moveSpeed;
 
     private void Awake()
@@ -22,16 +27,18 @@ public class PlayerMovement : MonoBehaviour
         playerInput.Player.Enable();
         playerInput.Player.Move.performed += OnMovementRead;
         playerInput.Player.Move.canceled += OnMovementStopRead;
-        playerInput.Player.Attack.started += OnAttack; 
+        playerInput.Player.Attack.started += OnAttack;
+        playerInput.Player.Jump.performed += OnJumpPerformed;
     }
 
-    
+   
 
     private void OnDisable()
     {
         playerInput.Player.Move.performed -= OnMovementRead;
         playerInput.Player.Move.canceled -= OnMovementStopRead;
         playerInput.Player.Attack.started -= OnAttack;
+        playerInput.Player.Jump.performed -= OnJumpPerformed;
     }
     private void OnDestroy()
     {
@@ -57,6 +64,13 @@ public class PlayerMovement : MonoBehaviour
     {
         myAnim.SetTrigger("attack");
     }
+    private void OnJumpPerformed(InputAction.CallbackContext context)
+    {
+        if (!IsGrounded())
+            return;
+
+        Jump();
+    }
     // Update is called once per frame
     void Update()
     {
@@ -64,7 +78,7 @@ public class PlayerMovement : MonoBehaviour
     }
     void HandleMovement()
     {
-        rb2D.linearVelocity = movementVector * moveSpeed;
+        rb2D.linearVelocity = new Vector2(movementVector.x * moveSpeed, rb2D.linearVelocity.y);
     }
     void InvertSprite(Vector2 movement)
     {
@@ -72,5 +86,19 @@ public class PlayerMovement : MonoBehaviour
             this.transform.localScale = new Vector3(-1, 1, 1);
         else
             this.transform.localScale = Vector2.one;
+    }
+    void Jump()
+    {
+        Debug.Log("Performing Jump!");
+        rb2D.linearVelocity = new Vector2(rb2D.linearVelocity.x, jumpForce);
+    }
+    bool IsGrounded()
+    {
+        return Physics2D.OverlapCircle(GroundCheckPoint.position, Radius, groundLayer);
+    }
+
+    private void OnDrawGizmos()
+    {
+        Gizmos.DrawWireSphere(GroundCheckPoint.position, Radius);
     }
 }
