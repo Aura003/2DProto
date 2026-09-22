@@ -13,7 +13,7 @@ public class PlayerMovement : MonoBehaviour
     private Rigidbody2D rb2D;
 
     private Vector2 movementVector;
-    private float jumpForce = 7f; 
+    private float jumpForce = 6f; 
     [SerializeField] private float moveSpeed;
 
     private void Awake()
@@ -29,9 +29,11 @@ public class PlayerMovement : MonoBehaviour
         playerInput.Player.Move.canceled += OnMovementStopRead;
         playerInput.Player.Attack.started += OnAttack;
         playerInput.Player.Jump.performed += OnJumpPerformed;
+        playerInput.Player.Roll.performed += OnRollPerformed;
+        playerInput.Player.Block.performed += OnBlockPerformed;
     }
 
-   
+    
 
     private void OnDisable()
     {
@@ -39,6 +41,8 @@ public class PlayerMovement : MonoBehaviour
         playerInput.Player.Move.canceled -= OnMovementStopRead;
         playerInput.Player.Attack.started -= OnAttack;
         playerInput.Player.Jump.performed -= OnJumpPerformed;
+        playerInput.Player.Roll.performed -= OnRollPerformed;
+        playerInput.Player.Block.performed -= OnBlockPerformed;
     }
     private void OnDestroy()
     {
@@ -71,6 +75,17 @@ public class PlayerMovement : MonoBehaviour
 
         Jump();
     }
+    private void OnRollPerformed(InputAction.CallbackContext context)
+    {
+        if (movementVector.sqrMagnitude < 0.01)
+            return;
+
+        myAnim.SetTrigger("roll");
+    }
+    private void OnBlockPerformed(InputAction.CallbackContext context)
+    {
+        //Logic for block, need to be standing or walking to block, block disables the movement releasing the block enables the movement again
+    }
     // Update is called once per frame
     void Update()
     {
@@ -91,6 +106,7 @@ public class PlayerMovement : MonoBehaviour
     {
         Debug.Log("Performing Jump!");
         rb2D.linearVelocity = new Vector2(rb2D.linearVelocity.x, jumpForce);
+        myAnim.SetTrigger("jump");
     }
     bool IsGrounded()
     {
