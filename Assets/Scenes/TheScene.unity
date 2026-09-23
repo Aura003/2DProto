@@ -1549,6 +1549,7 @@ GameObject:
   - component: {fileID: 1274125304}
   - component: {fileID: 1274125305}
   - component: {fileID: 1274125306}
+  - component: {fileID: 1274125307}
   m_Layer: 0
   m_Name: Player
   m_TagString: Untagged
@@ -1647,6 +1648,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6235519917adc6042823dfc712e9d088, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerMovement
+  PlayerStats: {fileID: 1274125307}
   GroundCheckPoint: {fileID: 2136646288}
   AttackPoint1: {fileID: 1511817807}
   AttackPoint2: {fileID: 2049540324}
@@ -1761,6 +1763,22 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
+--- !u!114 &1274125307
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1274125299}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6a0e62e59d4de60458dc16eed920ce5d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Stats
+  strength: 60
+  vitality: 60
+  agility: 60
+  luck: 60
 --- !u!1 &1355668561
 GameObject:
   m_ObjectHideFlags: 0

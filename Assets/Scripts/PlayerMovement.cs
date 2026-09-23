@@ -4,6 +4,7 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 public class PlayerMovement : MonoBehaviour
 {
+    public Stats PlayerStats;
     [Header("GoundCheck")]
     public Transform GroundCheckPoint;
     [Header("Attack")]
@@ -168,9 +169,12 @@ public class PlayerMovement : MonoBehaviour
     {
         myAnim.SetTrigger((AttackList[comboIndex].TriggerName));
         Collider2D[]colls = Physics2D.OverlapCircleAll(AttackList[Index].AttackPoint.position, AttackList[Index].Radius, enemyLayer);
+        int currentDamage = PlayerStats.Damage;
+        bool isCrit = PlayerStats.RollCrit();
+        if (isCrit) currentDamage *= 2;
         foreach(Collider2D x in colls)
         {
-            x.GetComponent<Enemy>().TakeDamage(5, true);
+            x.GetComponent<Enemy>().TakeDamage(currentDamage, isCrit);
         }
     }
     void ResetCombo()
