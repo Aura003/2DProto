@@ -170,7 +170,7 @@ public class PlayerMovement : MonoBehaviour
         Collider2D[]colls = Physics2D.OverlapCircleAll(AttackList[Index].AttackPoint.position, AttackList[Index].Radius, enemyLayer);
         foreach(Collider2D x in colls)
         {
-            x.GetComponent<Enemy>().TakeDamage(5);
+            x.GetComponent<Enemy>().TakeDamage(5, true);
         }
     }
     void ResetCombo()

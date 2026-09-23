@@ -18,9 +18,10 @@ public class Enemy : MonoBehaviour
     {
         
     }
-    public void TakeDamage(int Amount)
+    public void TakeDamage(int Amount, bool isCritical)
     {
         currentHp -= Amount;
+        GameManager.Instance.ShowNumbers(Amount,this.transform.position +Vector3.up, isCritical);
         enemyAnim.SetTrigger("hurt");
         if (currentHp <= 0)
         {
