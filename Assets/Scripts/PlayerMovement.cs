@@ -1,19 +1,34 @@
 using System;
-using Unity.VisualScripting;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
 public class PlayerMovement : MonoBehaviour
 {
     [Header("GoundCheck")]
     public Transform GroundCheckPoint;
-    public float Radius;
+    [Header("Attack")]
+    public Transform AttackPoint1;
+    public Transform AttackPoint2;
+    public Transform AttackPoint3;
+    public List<AttackComboStats>AttackList = new List<AttackComboStats> ();
+    public float ComboWidow = 0.5f;
+    private float comboTimer;
+    private int comboIndex;
+    private bool hasAttackStarted = false;
+    private bool isBlocking = false;
+
+    public float AttackRadius1;
+    public float AttackRadius2;
+    public float AttackRadius3;
+    private float groundCheckRadius = 0.05f;
     private int groundLayer { get { return 1 << LayerMask.NameToLayer("Ground"); } }
+    private int enemyLayer { get { return 1 << LayerMask.NameToLayer("Enemy"); } }
     private PlayerInput playerInput;
     private Animator myAnim;
     private Rigidbody2D rb2D;
 
     private Vector2 movementVector;
-    private float jumpForce = 6f; 
+    private float jumpForce = 7f; 
     [SerializeField] private float moveSpeed;
 
     private void Awake()
@@ -27,10 +42,12 @@ public class PlayerMovement : MonoBehaviour
         playerInput.Player.Enable();
         playerInput.Player.Move.performed += OnMovementRead;
         playerInput.Player.Move.canceled += OnMovementStopRead;
-        playerInput.Player.Attack.started += OnAttack;
+        playerInput.Player.Attack.started += OnAttackPerformed;
+        playerInput.Player.Attack.canceled += OnAtatckCanceled;
         playerInput.Player.Jump.performed += OnJumpPerformed;
         playerInput.Player.Roll.performed += OnRollPerformed;
         playerInput.Player.Block.performed += OnBlockPerformed;
+        playerInput.Player.Block.canceled += OnBlockCanceled;
     }
 
     
@@ -39,10 +56,12 @@ public class PlayerMovement : MonoBehaviour
     {
         playerInput.Player.Move.performed -= OnMovementRead;
         playerInput.Player.Move.canceled -= OnMovementStopRead;
-        playerInput.Player.Attack.started -= OnAttack;
+        playerInput.Player.Attack.started -= OnAttackPerformed;
+        playerInput.Player.Attack.canceled -= OnAtatckCanceled;
         playerInput.Player.Jump.performed -= OnJumpPerformed;
         playerInput.Player.Roll.performed -= OnRollPerformed;
         playerInput.Player.Block.performed -= OnBlockPerformed;
+        playerInput.Player.Block.canceled -= OnBlockCanceled;
     }
     private void OnDestroy()
     {
@@ -51,7 +70,7 @@ public class PlayerMovement : MonoBehaviour
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
-        
+        comboIndex = 0;
     }
     public void OnMovementRead(InputAction.CallbackContext context)
     {
@@ -64,9 +83,27 @@ public class PlayerMovement : MonoBehaviour
         movementVector = Vector2.zero;
         myAnim.SetFloat("movement", Mathf.Abs(movementVector.x));
     }
-    private void OnAttack(InputAction.CallbackContext context)
+    private void OnAttackPerformed(InputAction.CallbackContext context)
     {
-        myAnim.SetTrigger("attack");
+        if (comboIndex == 0)
+        {
+            StartAttackLogic(comboIndex, AttackList[comboIndex].AttackPoint, AttackList[comboIndex].Radius);
+            hasAttackStarted = true;
+            comboTimer = ComboWidow;
+        }
+        if (comboIndex!=0 && comboIndex < 3 && comboTimer > 0f)
+        {
+            StartAttackLogic(comboIndex, AttackList[comboIndex].AttackPoint, AttackList[comboIndex].Radius);
+        }
+    }
+    private void OnAtatckCanceled(InputAction.CallbackContext context)
+    {
+        if (comboIndex >= 3) 
+        {
+            ResetCombo();
+        }
+        if (comboIndex < 3)
+            comboIndex++;
     }
     private void OnJumpPerformed(InputAction.CallbackContext context)
     {
@@ -84,11 +121,26 @@ public class PlayerMovement : MonoBehaviour
     }
     private void OnBlockPerformed(InputAction.CallbackContext context)
     {
-        //Logic for block, need to be standing or walking to block, block disables the movement releasing the block enables the movement again
+        movementVector = Vector3.zero;
+        isBlocking = true; 
+        myAnim.SetBool("block", isBlocking);
     }
-    // Update is called once per frame
+    private void OnBlockCanceled(InputAction.CallbackContext context)
+    {
+        //isBlocking = false;
+        //myAnim.SetBool("block", isBlocking);
+    }
     void Update()
     {
+        if (hasAttackStarted)
+            comboTimer -= Time.deltaTime;
+        if (comboTimer <= 0)
+            ResetCombo();
+    }
+    void FixedUpdate()
+    {
+        if (isBlocking)
+            return;
         HandleMovement();
     }
     void HandleMovement()
@@ -110,11 +162,43 @@ public class PlayerMovement : MonoBehaviour
     }
     bool IsGrounded()
     {
-        return Physics2D.OverlapCircle(GroundCheckPoint.position, Radius, groundLayer);
+        return Physics2D.OverlapCircle(GroundCheckPoint.position, groundCheckRadius, groundLayer);
     }
-
+    void StartAttackLogic(int Index, Transform attackPoint, float radius)
+    {
+        myAnim.SetTrigger((AttackList[comboIndex].TriggerName));
+        Collider2D[]colls = Physics2D.OverlapCircleAll(AttackList[Index].AttackPoint.position, AttackList[Index].Radius, enemyLayer);
+        foreach(Collider2D x in colls)
+        {
+            x.GetComponent<Enemy>().TakeDamage(5);
+        }
+    }
+    void ResetCombo()
+    {
+        comboTimer = 0f;
+        comboIndex = 0;
+        hasAttackStarted = false;
+    }
+    public void AnimationEvent_EndBlock()
+    {
+        isBlocking = false;
+        myAnim.SetBool("block", isBlocking);
+    }
     private void OnDrawGizmos()
     {
-        Gizmos.DrawWireSphere(GroundCheckPoint.position, Radius);
+        Gizmos.DrawWireSphere(GroundCheckPoint.position, groundCheckRadius);
+        Gizmos.DrawWireSphere(AttackPoint1.position, AttackRadius1);
+        Gizmos.color = Color.green;
+        Gizmos.DrawWireSphere(AttackPoint2.position, AttackRadius2);
+        Gizmos.color = Color.red;
+        Gizmos.DrawWireSphere(AttackPoint3.position, AttackRadius3);
     }
 }
+[System.Serializable]
+public class AttackComboStats 
+{
+    public string TriggerName;
+    public Transform AttackPoint;
+    public float Radius;
+}
+
