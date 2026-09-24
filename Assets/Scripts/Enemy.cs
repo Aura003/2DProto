@@ -5,10 +5,20 @@ public class Enemy : MonoBehaviour
 {
     private int maxHp = 100;
     private float currentHp;
-    private Animator enemyAnim;
+    [HideInInspector]public Animator enemyAnim;
+    private EnemyStateMachine enemyFSM;
+
+    private EnemyIdleState idleState;
+    private void Awake()
+    {
+        enemyFSM = new EnemyStateMachine();
+        idleState = new EnemyIdleState(this);
+        
+    }
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
+        OnChangeState(idleState);
         enemyAnim = this.GetComponent<Animator>();
         currentHp = maxHp;
     }
@@ -16,7 +26,15 @@ public class Enemy : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        
+        enemyFSM.Update();
+    }
+    private void FixedUpdate()
+    {
+        enemyFSM.FixedUpdate();
+    }
+    private void OnChangeState(EnemyStates newState)
+    {
+        enemyFSM.ChangeState(newState);
     }
     public void TakeDamage(int Amount, bool isCritical)
     {

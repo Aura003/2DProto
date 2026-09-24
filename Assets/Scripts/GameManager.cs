@@ -1,6 +1,9 @@
-using UnityEngine;
-using TMPro;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
+using TMPro;
+using Unity.VisualScripting.Antlr3.Runtime.Misc;
+using UnityEngine;
+using UnityEngine.UI;
 
 public class GameManager : MonoBehaviour
 {
@@ -9,7 +12,14 @@ public class GameManager : MonoBehaviour
     [Header("DamageNumbers")]
     public DamagerNumber DamageNumberPrefab;
     public int InitialPoolSize;
+    [Header("RPG Stats")]
+    public Stats PlayerStats;
 
+    [Header("StatsUI")]
+    public StatRow StrengthRow;
+    public StatRow VitRow;
+    public StatRow AgiRow;
+    public StatRow LuckRow;
 
     private readonly Queue<DamagerNumber> availableNumbers = new Queue<DamagerNumber>();
     private void Awake()
@@ -26,7 +36,11 @@ public class GameManager : MonoBehaviour
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
-        
+        RefreshUI();
+        StrengthRow.IncreaseBTN.onClick.AddListener(IncreaseSTR);
+        AgiRow.IncreaseBTN.onClick.AddListener(IncreaseAGI);
+        VitRow.IncreaseBTN.onClick.AddListener(IncreaseVIT);
+        LuckRow.IncreaseBTN.onClick.AddListener(IncreaseLUK);
     }
 
     void CreatePool()
@@ -72,4 +86,47 @@ public class GameManager : MonoBehaviour
         number.gameObject.SetActive(false);
         availableNumbers.Enqueue(number);
     }
+
+    public void RefreshUI()
+    {
+        StrengthRow.BaseValue.text = PlayerStats.Strength.ToString();
+        StrengthRow.DerivedValue.text = PlayerStats.Damage.ToString();
+
+        VitRow.BaseValue.text = PlayerStats.Vitality.ToString();
+        VitRow.DerivedValue.text = PlayerStats.MaxHp.ToString();
+
+        AgiRow.BaseValue.text = PlayerStats.Agility.ToString();
+        AgiRow.DerivedValue.text = $"{PlayerStats.EvasionRating:0.#}%";
+
+
+        LuckRow.BaseValue.text=PlayerStats.Luck.ToString();
+        LuckRow.DerivedValue.text = $"{PlayerStats.CritRate:0.#}%";
+    }
+    void IncreaseSTR()
+    {
+        PlayerStats.AddSTR(1);
+        RefreshUI();
+    }
+    void IncreaseVIT()
+    {
+        PlayerStats.AddVIT(1);
+        RefreshUI();
+    }
+    void IncreaseAGI()
+    {
+        PlayerStats.AddAGI(1);
+        RefreshUI();
+    }
+    void IncreaseLUK()
+    {
+        PlayerStats.AddLUK(1);
+        RefreshUI();
+    }
+}
+[System.Serializable]
+public class StatRow
+{
+    public Button IncreaseBTN;
+    public TextMeshProUGUI BaseValue;
+    public TextMeshProUGUI DerivedValue;
 }

@@ -38,4 +38,20 @@ public class Stats : MonoBehaviour
         return Random.value *100f < CritRate;
     }
 
+    public void AddSTR(int value)
+    {
+        strength += value;
+    }
+    public void AddVIT(int value)
+    {
+        vitality += value;
+    }
+    public void AddAGI(int value)
+    {
+        agility += value;
+    }
+    public void AddLUK(int value)
+    {
+        luck += value;
+    }
 }
