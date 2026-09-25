@@ -41,6 +41,9 @@ public class GameManager : MonoBehaviour
         AgiRow.IncreaseBTN.onClick.AddListener(IncreaseAGI);
         VitRow.IncreaseBTN.onClick.AddListener(IncreaseVIT);
         LuckRow.IncreaseBTN.onClick.AddListener(IncreaseLUK);
+
+        PlayerStats.OnStatsChanged += RefreshUI;
+        PlayerStats.OnLevelUP += RefreshUI;
     }
 
     void CreatePool()
@@ -101,26 +104,28 @@ public class GameManager : MonoBehaviour
 
         LuckRow.BaseValue.text=PlayerStats.Luck.ToString();
         LuckRow.DerivedValue.text = $"{PlayerStats.CritRate:0.#}%";
+
+        bool canIncrease = PlayerStats.AvailableStatPoints > 0;
+        StrengthRow.IncreaseBTN.interactable = canIncrease;
+        VitRow.IncreaseBTN.interactable = canIncrease;
+        AgiRow.IncreaseBTN.interactable = canIncrease;
+        LuckRow.IncreaseBTN.interactable = canIncrease;
     }
     void IncreaseSTR()
     {
-        PlayerStats.AddSTR(1);
-        RefreshUI();
+        PlayerStats.TryIncreaseStat(StatType.STR);
     }
     void IncreaseVIT()
     {
-        PlayerStats.AddVIT(1);
-        RefreshUI();
+        PlayerStats.TryIncreaseStat(StatType.VIT);
     }
     void IncreaseAGI()
     {
-        PlayerStats.AddAGI(1);
-        RefreshUI();
+        PlayerStats.TryIncreaseStat(StatType.AGI);
     }
     void IncreaseLUK()
     {
-        PlayerStats.AddLUK(1);
-        RefreshUI();
+        PlayerStats.TryIncreaseStat(StatType.LUK);
     }
 }
 [System.Serializable]
