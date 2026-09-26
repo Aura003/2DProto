@@ -18,6 +18,8 @@ public class Enemy : MonoBehaviour
 
     [Header("FSM STUFF")]
     public float detectionRange;
+    private Rigidbody2D enemyRbdy2D;
+    public Rigidbody2D EnemyRbdy2D { get { return enemyRbdy2D; }  }
     public int PlayerLayer {  get { return 1 << LayerMask.NameToLayer("Player"); } }
 
     private void OnDrawGizmos()
@@ -37,6 +39,7 @@ public class Enemy : MonoBehaviour
     {
         OnChangeState(idleState);
         enemyAnim = this.GetComponent<Animator>();
+        enemyRbdy2D = this.GetComponent<Rigidbody2D>();
         currentHp = maxHp;
     }
 
