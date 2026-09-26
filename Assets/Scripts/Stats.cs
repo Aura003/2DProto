@@ -1,3 +1,4 @@
+using JetBrains.Annotations;
 using System;
 using UnityEngine;
 public enum StatType { STR,VIT,AGI,LUK};
@@ -25,6 +26,7 @@ public class Stats : MonoBehaviour
     private float evasionPerAgility = 1;
     private float baseCrit = 1;
     private float critPerLuck = 1f;
+    private float currentHp;
 
     public int Strength => strength;
     public int Vitality => vitality;
@@ -36,7 +38,8 @@ public class Stats : MonoBehaviour
     public int AvailableStatPoints => availableStatPoints;
     public int RequiredExperience => requiredExperience * (1<<(Level-1));
     public int Damage => baseDamage + (Strength * damagePerStrength);
-    public int MaxHp=> baseHealth + (Vitality * healthPerVitality);
+    public float MaxHp=> baseHealth + (Vitality * healthPerVitality);
+    public float CurrentHp { get { return currentHp; } }
 
     public float EvasionRating => baseEvasion + (Agility * evasionPerAgility);
 
@@ -44,6 +47,13 @@ public class Stats : MonoBehaviour
 
     public event Action OnLevelUP;
     public event Action OnStatsChanged;
+    public event Action OnHPChanged;
+    public event Action OnExpChanged;
+
+    public void Start()
+    {
+        currentHp = MaxHp;
+    }
     public bool RollEvasion()
     {
         return UnityEngine.Random.value * 100f < EvasionRating;
@@ -53,21 +63,10 @@ public class Stats : MonoBehaviour
         return UnityEngine.Random.value *100f < CritRate;
     }
 
-    public void AddSTR(int value)
+    public void HpChange(int amount)
     {
-        strength += value;
-    }
-    public void AddVIT(int value)
-    {
-        vitality += value;
-    }
-    public void AddAGI(int value)
-    {
-        agility += value;
-    }
-    public void AddLUK(int value)
-    {
-        luck += value;
+        currentHp -= amount;
+        OnHPChanged?.Invoke();
     }
     public bool TryIncreaseStat(StatType type)
     {

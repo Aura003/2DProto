@@ -8,15 +8,20 @@ public class EnemyIdleState : EnemyStates
     }
     public override void OnEnter()
     {
-        enemy.enemyAnim.SetTrigger("attack");
+        Debug.Log("ON ENTER IDLE STATE");
+        //enemy.enemyAnim.SetTrigger("attack");
     }
     public override void OnUpdate()
     {
-        Debug.LogError("IDLE--STATE--UPDATE");
+        Collider2D coll = Physics2D.OverlapCircle(enemy.transform.position, enemy.detectionRange, enemy.PlayerLayer);
+        if (coll != null)
+            enemy.OnChangeState(enemy.attackState);
+        else
+            enemy.OnChangeState(enemy.walkState);
     }
     public override void OnExit()
     {
-        base.OnExit();
+        Debug.Log("ON EXIT IDLE STATE");
     }
    
 }

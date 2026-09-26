@@ -1,17 +1,20 @@
 using UnityEngine;
 
-public class EnemyWalkState : EnemyStates
+public class EnemyAttackState : EnemyStates
 {
-    public EnemyWalkState(Enemy e):base(e)
+   public EnemyAttackState(Enemy e) : base(e)
     {
 
     }
+
     public override void OnEnter()
     {
-        Debug.Log("ON ENTER WALK STATE");
+        Debug.Log("ON ENTER ATTACK STATE");
+        enemy.enemyAnim.SetTrigger("attack");
     }
     public override void OnUpdate()
     {
+        
        // throw new System.NotImplementedException();
     }
     public override void OnFixedUpdate()
@@ -20,6 +23,7 @@ public class EnemyWalkState : EnemyStates
     }
     public override void OnExit()
     {
-        Debug.Log("ON EXIT WALK STATE");
+        
     }
+ 
 }

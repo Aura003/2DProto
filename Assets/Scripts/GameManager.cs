@@ -20,7 +20,10 @@ public class GameManager : MonoBehaviour
     public StatRow VitRow;
     public StatRow AgiRow;
     public StatRow LuckRow;
-
+    [Header("HP EXP")]
+    public Image Hpfill;
+    public TextMeshProUGUI HpText;
+    public Image Expfill;
     private readonly Queue<DamagerNumber> availableNumbers = new Queue<DamagerNumber>();
     private void Awake()
     {
@@ -44,6 +47,17 @@ public class GameManager : MonoBehaviour
 
         PlayerStats.OnStatsChanged += RefreshUI;
         PlayerStats.OnLevelUP += RefreshUI;
+        PlayerStats.OnHPChanged += ResolveHp;
+
+        Expfill.fillAmount = PlayerStats.CurrentExp / PlayerStats.RequiredExperience;
+        Hpfill.fillAmount = PlayerStats.CurrentHp / PlayerStats.MaxHp;
+        HpText.text = PlayerStats.CurrentHp.ToString() + " / " + PlayerStats.MaxHp.ToString();
+    }
+    private void OnDisable()
+    {
+        PlayerStats.OnStatsChanged -= RefreshUI;
+        PlayerStats.OnLevelUP -= RefreshUI;
+        PlayerStats.OnHPChanged -= ResolveHp;
     }
 
     void CreatePool()
@@ -110,6 +124,7 @@ public class GameManager : MonoBehaviour
         VitRow.IncreaseBTN.interactable = canIncrease;
         AgiRow.IncreaseBTN.interactable = canIncrease;
         LuckRow.IncreaseBTN.interactable = canIncrease;
+        ResolveHp();
     }
     void IncreaseSTR()
     {
@@ -126,6 +141,12 @@ public class GameManager : MonoBehaviour
     void IncreaseLUK()
     {
         PlayerStats.TryIncreaseStat(StatType.LUK);
+    }
+    public void ResolveHp()
+    {
+        Debug.Log(PlayerStats.CurrentHp / PlayerStats.MaxHp);
+        Hpfill.fillAmount = PlayerStats.CurrentHp / PlayerStats.MaxHp;
+        HpText.text = PlayerStats.CurrentHp.ToString() + " / " + PlayerStats.MaxHp.ToString();
     }
 }
 [System.Serializable]

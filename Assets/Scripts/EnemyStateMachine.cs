@@ -22,4 +22,8 @@ public class EnemyStateMachine
     {
         currentState?.OnFixedUpdate();
     }
+    public void ExitState()
+    {
+        currentState?.OnExit();
+    }
 }
