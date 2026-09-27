@@ -5,6 +5,7 @@ using Unity.VisualScripting.Antlr3.Runtime.Misc;
 using UnityEngine;
 using UnityEngine.UI;
 
+
 public class GameManager : MonoBehaviour
 {
     public static GameManager Instance { private set; get; }
@@ -16,6 +17,8 @@ public class GameManager : MonoBehaviour
     public Stats PlayerStats;
 
     [Header("StatsUI")]
+    public GameObject StatsPanel;
+    public Button StatsBTN;
     public StatRow StrengthRow;
     public StatRow VitRow;
     public StatRow AgiRow;
@@ -24,6 +27,7 @@ public class GameManager : MonoBehaviour
     public Image Hpfill;
     public TextMeshProUGUI HpText;
     public Image Expfill;
+    private bool isActive = false;
     private readonly Queue<DamagerNumber> availableNumbers = new Queue<DamagerNumber>();
     private void Awake()
     {
@@ -40,6 +44,8 @@ public class GameManager : MonoBehaviour
     void Start()
     {
         RefreshUI();
+        StatsPanel.gameObject.SetActive(false);
+        StatsBTN.onClick.AddListener(ToggleStatsPanel);
         StrengthRow.IncreaseBTN.onClick.AddListener(IncreaseSTR);
         AgiRow.IncreaseBTN.onClick.AddListener(IncreaseAGI);
         VitRow.IncreaseBTN.onClick.AddListener(IncreaseVIT);
@@ -56,12 +62,17 @@ public class GameManager : MonoBehaviour
     }
     private void OnDisable()
     {
+        StatsBTN.onClick.RemoveListener(ToggleStatsPanel);
         PlayerStats.OnStatsChanged -= RefreshUI;
         PlayerStats.OnLevelUP -= RefreshUI;
         PlayerStats.OnHPChanged -= ResolveHp;
         PlayerMovement.OnHpChanged -= DamagableHP;
     }
-
+    void ToggleStatsPanel()
+    {
+        isActive = !isActive;
+        StatsPanel.gameObject.SetActive(isActive);
+    }
     void CreatePool()
     {
         for (int i = 0; i < InitialPoolSize; i++)
