@@ -3,7 +3,7 @@ using UnityEngine;
 public class EnemyAttackState : EnemyStates
 {
   
-   public EnemyAttackState(Enemy e) : base(e)
+   public EnemyAttackState(EnemyWitch e) : base(e)
     {
 
     }

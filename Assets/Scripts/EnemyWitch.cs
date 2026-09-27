@@ -2,13 +2,15 @@ using TMPro;
 using Unity.VisualScripting;
 using UnityEngine;
 
-public class Enemy : MonoBehaviour
+public class EnemyWitch : MonoBehaviour
 {
     [SerializeField]private int maxHp = 100;
     [SerializeField]private int EXPToGive;
+    [SerializeField] private int Damage;
     public Transform AttackPoint;
     public GameObject ProjectilePrefab;
     private float currentHp;
+    private Vector3 startingPos;
     [HideInInspector]public Animator enemyAnim;
     private EnemyStateMachine enemyFSM;
 
@@ -20,6 +22,7 @@ public class Enemy : MonoBehaviour
     public float detectionRange;
     private Rigidbody2D enemyRbdy2D;
     public Rigidbody2D EnemyRbdy2D { get { return enemyRbdy2D; }  }
+    public Vector3 StartingPos { get { return startingPos; } }
     public int PlayerLayer {  get { return 1 << LayerMask.NameToLayer("Player"); } }
 
     private void OnDrawGizmos()
@@ -37,6 +40,7 @@ public class Enemy : MonoBehaviour
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
+        startingPos = this.transform.position;
         OnChangeState(idleState);
         enemyAnim = this.GetComponent<Animator>();
         enemyRbdy2D = this.GetComponent<Rigidbody2D>();
@@ -73,9 +77,10 @@ public class Enemy : MonoBehaviour
     }
     public void AnimationEventAttack()
     {
+        GameObject proj = Instantiate(ProjectilePrefab,AttackPoint.position,AttackPoint.rotation);
         Vector2 facingDir = this.transform.localScale.x > 0 ? Vector2.right : Vector2.left;
-      GameObject proj = Instantiate(ProjectilePrefab,AttackPoint.position,AttackPoint.rotation);
-        proj.GetComponent<ProjectileLogic>().SetDirection(facingDir);
+        Debug.LogError(facingDir);
+        proj.GetComponent<ProjectileLogic>().SetDirection(facingDir, Damage);
         proj.transform.localScale = new Vector3(proj.transform.localScale.x * facingDir.x, proj.transform.localScale.y, proj.transform.localScale.z);
     }
     void Dead()

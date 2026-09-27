@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
-public class PlayerMovement : MonoBehaviour
+public class PlayerMovement : MonoBehaviour, IDamagable
 {
     public Stats PlayerStats;
     [Header("GoundCheck")]
@@ -32,6 +32,7 @@ public class PlayerMovement : MonoBehaviour
     private float jumpForce = 7f; 
     [SerializeField] private float moveSpeed;
 
+    public static event Action<float, float> OnHpChanged;
     private void Awake()
     {
         rb2D = GetComponent<Rigidbody2D>();
@@ -174,7 +175,7 @@ public class PlayerMovement : MonoBehaviour
         if (isCrit) currentDamage *= 2;
         foreach(Collider2D x in colls)
         {
-            x.GetComponent<Enemy>().TakeDamage(currentDamage, isCrit);
+            x.GetComponent<EnemyWitch>().TakeDamage(currentDamage, isCrit);
         }
     }
     void ResetCombo()
@@ -196,6 +197,16 @@ public class PlayerMovement : MonoBehaviour
         Gizmos.DrawWireSphere(AttackPoint2.position, AttackRadius2);
         Gizmos.color = Color.red;
         Gizmos.DrawWireSphere(AttackPoint3.position, AttackRadius3);
+    }
+
+    public void TakeDamage(float damage)
+    {
+        if (damage <= 0 || PlayerStats.CurrentHp <= 0)
+            return;
+
+        PlayerStats.CurrentHp = Mathf.Max(PlayerStats.CurrentHp - damage, 0);
+        OnHpChanged?.Invoke(PlayerStats.CurrentHp, PlayerStats.MaxHp);
+        Debug.LogError(PlayerStats.CurrentHp);
     }
 }
 [System.Serializable]

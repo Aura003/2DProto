@@ -3,7 +3,7 @@ using UnityEngine;
 public class EnemyIdleState : EnemyStates
 {
     private float IdleTimer = 5f;
-    public EnemyIdleState(Enemy e) : base(e)
+    public EnemyIdleState(EnemyWitch e) : base(e)
     {
 
     }

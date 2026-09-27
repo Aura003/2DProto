@@ -4,6 +4,9 @@ public class ProjectileLogic : MonoBehaviour
 {
     float lifeTime = 5f;
     float speed = 5f;
+
+    int damage;
+    public int Damage { get { return damage; } set { damage = value; } }
     Animator projectileAnimator;
     Rigidbody2D projRbdy;
     bool hasCollided = false;
@@ -15,22 +18,28 @@ public class ProjectileLogic : MonoBehaviour
         projRbdy=this.GetComponent<Rigidbody2D>();
         Destroy(this.gameObject, lifeTime);
     }
-    public Vector2 SetDirection(Vector2 dir)
+    public Vector2 SetDirection(Vector2 dir, int damage)
     {
+        this.damage = damage;
         return direction = dir;
     }
     void FixedUpdate()
     {
         if (hasCollided)
-             projRbdy.linearVelocity = new Vector2(0, projRbdy.linearVelocity.y);
+            projRbdy.linearVelocity = new Vector2(0, projRbdy.linearVelocity.y);
         else
             projRbdy.linearVelocity = new Vector2(direction.x * speed, projRbdy.linearVelocity.y);      
         
     }
     private void OnTriggerEnter2D(Collider2D collision)
     {
+        if (!collision.TryGetComponent<IDamagable>(out var damagable))
+            return;
+
+
+        damagable.TakeDamage(Damage);
         hasCollided = true;
         projectileAnimator.SetTrigger("explode");
-        Destroy(this.gameObject,1f);
+        Destroy(this.gameObject, 0.3f);
     }
 }

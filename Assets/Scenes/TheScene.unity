@@ -3760,7 +3760,7 @@ GameObject:
   - component: {fileID: 1274125307}
   m_Layer: 8
   m_Name: Player
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -5671,6 +5671,7 @@ GameObject:
   - component: {fileID: 1819248629}
   - component: {fileID: 1819248628}
   - component: {fileID: 1819248627}
+  - component: {fileID: 1819248633}
   m_Layer: 7
   m_Name: WitchEnemy
   m_TagString: Untagged
@@ -5842,7 +5843,7 @@ Transform:
   m_GameObject: {fileID: 1819248626}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 5.51, y: -3.084, z: 0}
+  m_LocalPosition: {x: 5.76, y: -3.084, z: 0}
   m_LocalScale: {x: -2.5, y: 2.5, z: 2.5}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -5858,15 +5859,28 @@ MonoBehaviour:
   m_GameObject: {fileID: 1819248626}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 05e095c0da01bca41b83fc0ea2da8120, type: 3}
+  m_Script: {fileID: 0}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Enemy
+--- !u!114 &1819248633
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1819248626}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ed0bafbb4cd03404c9e4b662fa934566, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::EnemyWitch
   maxHp: 200
-  EXPToGive: 200
+  EXPToGive: 100
+  Damage: 30
   AttackPoint: {fileID: 1786750339}
   ProjectilePrefab: {fileID: 5398959414506420672, guid: 453c3740c62cc794db7d447cdfdf92d6, type: 3}
-  enemyAnim: {fileID: 1819248629}
-  detectionRange: 4
+  enemyAnim: {fileID: 0}
+  detectionRange: 3
 --- !u!1 &1849384258
 GameObject:
   m_ObjectHideFlags: 0

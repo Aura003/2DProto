@@ -2,8 +2,8 @@ using UnityEngine;
 
 public abstract class EnemyStates
 {
-    protected readonly Enemy enemy;
-    protected EnemyStates(Enemy e)
+    protected readonly EnemyWitch enemy;
+    protected EnemyStates(EnemyWitch e)
     {
         enemy = e;
     }

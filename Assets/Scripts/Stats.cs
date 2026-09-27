@@ -39,7 +39,7 @@ public class Stats : MonoBehaviour
     public int RequiredExperience => requiredExperience * (1<<(Level-1));
     public int Damage => baseDamage + (Strength * damagePerStrength);
     public float MaxHp=> baseHealth + (Vitality * healthPerVitality);
-    public float CurrentHp { get { return currentHp; } }
+    public float CurrentHp { get { return currentHp; } set { currentHp = value; } }
 
     public float EvasionRating => baseEvasion + (Agility * evasionPerAgility);
 

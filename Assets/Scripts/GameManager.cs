@@ -44,6 +44,7 @@ public class GameManager : MonoBehaviour
         AgiRow.IncreaseBTN.onClick.AddListener(IncreaseAGI);
         VitRow.IncreaseBTN.onClick.AddListener(IncreaseVIT);
         LuckRow.IncreaseBTN.onClick.AddListener(IncreaseLUK);
+        PlayerMovement.OnHpChanged += DamagableHP;
 
         PlayerStats.OnStatsChanged += RefreshUI;
         PlayerStats.OnLevelUP += RefreshUI;
@@ -58,6 +59,7 @@ public class GameManager : MonoBehaviour
         PlayerStats.OnStatsChanged -= RefreshUI;
         PlayerStats.OnLevelUP -= RefreshUI;
         PlayerStats.OnHPChanged -= ResolveHp;
+        PlayerMovement.OnHpChanged -= DamagableHP;
     }
 
     void CreatePool()
@@ -147,6 +149,11 @@ public class GameManager : MonoBehaviour
         Debug.Log(PlayerStats.CurrentHp / PlayerStats.MaxHp);
         Hpfill.fillAmount = PlayerStats.CurrentHp / PlayerStats.MaxHp;
         HpText.text = PlayerStats.CurrentHp.ToString() + " / " + PlayerStats.MaxHp.ToString();
+    }
+    public void DamagableHP(float cur, float max)
+    {
+        Hpfill.fillAmount = cur / max;
+        HpText.text = cur.ToString() + " / " + max.ToString();
     }
 }
 [System.Serializable]

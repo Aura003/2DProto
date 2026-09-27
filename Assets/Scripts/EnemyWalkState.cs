@@ -2,11 +2,10 @@ using UnityEngine;
 
 public class EnemyWalkState : EnemyStates
 {
-    public EnemyWalkState(Enemy e):base(e)
+    public EnemyWalkState(EnemyWitch e):base(e)
     {
 
     }
-    private Vector3 startingPos;
     private Vector3 targetRight, targetLeft;
     private float walkDistance = 1.5f;
     private float walkSpeed = 1.5f;
@@ -15,9 +14,9 @@ public class EnemyWalkState : EnemyStates
     public override void OnEnter()
     {
         Debug.Log("ON ENTER WALK STATE");
-        startingPos = enemy.transform.position;
-        targetRight = new Vector3(startingPos.x + (walkDistance), enemy.transform.position.y, enemy.transform.position.z);
-        targetLeft = new Vector3(startingPos.x - (walkDistance), enemy.transform.position.y, enemy.transform.position.z);
+
+        targetRight = new Vector3(enemy.StartingPos.x + (walkDistance), enemy.transform.position.y, enemy.transform.position.z);
+        targetLeft = new Vector3(enemy.StartingPos.x - (walkDistance), enemy.transform.position.y, enemy.transform.position.z);
         isMovingRight = false;
         UpdateFacing();
     }
@@ -36,12 +35,12 @@ public class EnemyWalkState : EnemyStates
         {
             enemy.EnemyRbdy2D.linearVelocity = new Vector2(direction * walkSpeed, enemy.EnemyRbdy2D.linearVelocity.y);
             enemy.enemyAnim.SetFloat("movement", Mathf.Abs(direction));
-            if(isMovingRight && enemy.transform.position.x >= startingPos.x + walkDistance)
+            if(isMovingRight && enemy.transform.position.x >= enemy.StartingPos.x + walkDistance)
             {
                 isMovingRight = false;
                 UpdateFacing();
             }
-            else if(!isMovingRight && enemy.transform.position.x <= startingPos.x - walkDistance)
+            else if(!isMovingRight && enemy.transform.position.x <= enemy.StartingPos.x - walkDistance)
             {
                 isMovingRight = true;
                 UpdateFacing();
@@ -53,6 +52,10 @@ public class EnemyWalkState : EnemyStates
         if (coll != null)
         {
             foundEnemy = true;
+            float dir = (coll.transform.position.x - enemy.transform.position.x);
+            Vector3 scale = enemy.transform.localScale;
+            scale.x = dir>0 ? Mathf.Abs(scale.x) : -Mathf.Abs(scale.x);
+            enemy.transform.localScale = scale;
             enemy.OnChangeState(enemy.attackState);
         }
         
@@ -70,4 +73,5 @@ public class EnemyWalkState : EnemyStates
         scale.x = isMovingRight ? Mathf.Abs(scale.x) : -Mathf.Abs(scale.x);
         enemy.transform.localScale = scale;
     }
+
 }
