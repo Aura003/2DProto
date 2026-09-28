@@ -18,7 +18,7 @@ public class DamagerNumber : MonoBehaviour
     {
         manager = gm;
     }
-    public void DisplayDamage(int damageAmount, Vector3 position, bool isCritical, Color c)
+    public void DisplayDamage(float damageAmount, Vector3 position, bool isCritical, Color c)
     {
         transform.position = position;
         startPos = position;

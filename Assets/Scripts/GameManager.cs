@@ -88,7 +88,7 @@ public class GameManager : MonoBehaviour
         availableNumbers.Enqueue(number);
         return number;
     }
-    public void ShowNumbers(int damage, Vector3 position, bool isCritical = false)
+    public void ShowNumbers(float damage, Vector3 position, bool isCritical = false)
     {
         DamagerNumber number = GetNumber();
 

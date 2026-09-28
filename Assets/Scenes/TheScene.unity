@@ -4369,10 +4369,12 @@ MonoBehaviour:
   - TriggerName: attack3
     AttackPoint: {fileID: 469830926}
     Radius: 0.7
-  ComboWidow: 1
+  ComboWidow: 2
   AttackRadius1: 0.6
   AttackRadius2: 0.5
   AttackRadius3: 0.7
+  coyoteTime: 0.15
+  jumpBufferTime: 0.12
   moveSpeed: 5
 --- !u!50 &1274125304
 Rigidbody2D:

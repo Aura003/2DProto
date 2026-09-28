@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using UnityEngine;
 using UnityEngine.InputSystem;
 public class PlayerMovement : MonoBehaviour, IDamagable
@@ -12,15 +13,26 @@ public class PlayerMovement : MonoBehaviour, IDamagable
     public Transform AttackPoint2;
     public Transform AttackPoint3;
     public List<AttackComboStats>AttackList = new List<AttackComboStats> ();
+    [Header("ATTACK COMBO")]
     public float ComboWidow = 0.5f;
     private float comboTimer;
     private int comboIndex;
     private bool hasAttackStarted = false;
-    private bool isBlocking = false;
-
     public float AttackRadius1;
     public float AttackRadius2;
     public float AttackRadius3;
+
+    [Header("JUMPING")]
+    [SerializeField]private float coyoteTime;
+    [SerializeField] private float jumpBufferTime;
+    private float jumpForce = 7f;
+
+    private float coyoteTimer;
+    private float jumpButterTimer;
+
+    [Header("BLOCK")]
+    private bool isBlocking = false;
+
     private float groundCheckRadius = 0.05f;
     private int groundLayer { get { return 1 << LayerMask.NameToLayer("Ground"); } }
     private int enemyLayer { get { return 1 << LayerMask.NameToLayer("Enemy"); } }
@@ -29,7 +41,6 @@ public class PlayerMovement : MonoBehaviour, IDamagable
     private Rigidbody2D rb2D;
 
     private Vector2 movementVector;
-    private float jumpForce = 7f; 
     [SerializeField] private float moveSpeed;
 
     public static event Action<float, float> OnHpChanged;
@@ -47,12 +58,13 @@ public class PlayerMovement : MonoBehaviour, IDamagable
         playerInput.Player.Attack.started += OnAttackPerformed;
         playerInput.Player.Attack.canceled += OnAtatckCanceled;
         playerInput.Player.Jump.performed += OnJumpPerformed;
+        playerInput.Player.Jump.canceled += OnJumpCancelled;
         playerInput.Player.Roll.performed += OnRollPerformed;
         playerInput.Player.Block.performed += OnBlockPerformed;
         playerInput.Player.Block.canceled += OnBlockCanceled;
     }
 
-    
+   
 
     private void OnDisable()
     {
@@ -61,6 +73,7 @@ public class PlayerMovement : MonoBehaviour, IDamagable
         playerInput.Player.Attack.started -= OnAttackPerformed;
         playerInput.Player.Attack.canceled -= OnAtatckCanceled;
         playerInput.Player.Jump.performed -= OnJumpPerformed;
+        playerInput.Player.Jump.canceled -= OnJumpCancelled;
         playerInput.Player.Roll.performed -= OnRollPerformed;
         playerInput.Player.Block.performed -= OnBlockPerformed;
         playerInput.Player.Block.canceled -= OnBlockCanceled;
@@ -109,10 +122,11 @@ public class PlayerMovement : MonoBehaviour, IDamagable
     }
     private void OnJumpPerformed(InputAction.CallbackContext context)
     {
-        if (!IsGrounded())
-            return;
-
-        Jump();
+        jumpButterTimer = jumpBufferTime;
+    }
+    private void OnJumpCancelled(InputAction.CallbackContext context)
+    {
+        //Jump cancelled
     }
     private void OnRollPerformed(InputAction.CallbackContext context)
     {
@@ -138,13 +152,17 @@ public class PlayerMovement : MonoBehaviour, IDamagable
             comboTimer -= Time.deltaTime;
         if (comboTimer <= 0)
             ResetCombo();
+
+        UpdateJumpTimer();
     }
     void FixedUpdate()
     {
         if (isBlocking)
             return;
         HandleMovement();
+        HandleJump();
     }
+    
     void HandleMovement()
     {
         rb2D.linearVelocity = new Vector2(movementVector.x * moveSpeed, rb2D.linearVelocity.y);
@@ -156,9 +174,33 @@ public class PlayerMovement : MonoBehaviour, IDamagable
         else
             this.transform.localScale = Vector2.one;
     }
+    void UpdateJumpTimer()
+    {
+        if (IsGrounded())
+        {
+            coyoteTimer = coyoteTime;
+        }
+        else
+        {
+            coyoteTimer -= Time.deltaTime;
+        }
+
+        if (jumpButterTimer > 0)
+        {
+            jumpButterTimer -= Time.deltaTime;
+        }
+    }
+    void HandleJump()
+    {
+        if(coyoteTimer<=0) return;
+        if(jumpButterTimer<=0) return;
+        Jump();
+    }
     void Jump()
     {
         Debug.Log("Performing Jump!");
+        coyoteTimer = 0f;
+        jumpButterTimer = 0f;
         rb2D.linearVelocity = new Vector2(rb2D.linearVelocity.x, jumpForce);
         myAnim.SetTrigger("jump");
     }
@@ -203,7 +245,7 @@ public class PlayerMovement : MonoBehaviour, IDamagable
     {
         if (damage <= 0 || PlayerStats.CurrentHp <= 0)
             return;
-
+        GameManager.Instance.ShowNumbers(damage, this.transform.position + Vector3.up);
         PlayerStats.CurrentHp = Mathf.Max(PlayerStats.CurrentHp - damage, 0);
         OnHpChanged?.Invoke(PlayerStats.CurrentHp, PlayerStats.MaxHp);
         Debug.LogError(PlayerStats.CurrentHp);
