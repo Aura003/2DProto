@@ -17,6 +17,7 @@ public class PlayerMovement : MonoBehaviour, IDamagable
     public float ComboWidow = 0.5f;
     private float comboTimer;
     private int comboIndex;
+   [SerializeField] private bool canStartCombo = false;
     private bool hasAttackStarted = false;
     public float AttackRadius1;
     public float AttackRadius2;
@@ -100,25 +101,44 @@ public class PlayerMovement : MonoBehaviour, IDamagable
     }
     private void OnAttackPerformed(InputAction.CallbackContext context)
     {
+        //if (comboIndex == 0)
+        //{
+        //    StartAttackLogic(comboIndex, AttackList[comboIndex].AttackPoint, AttackList[comboIndex].Radius);
+        //    hasAttackStarted = true;
+        //    comboTimer = ComboWidow;
+        //}
+        //if (comboIndex!=0 && comboIndex < 3 && comboTimer > 0f)
+        //{
+        //    StartAttackLogic(comboIndex, AttackList[comboIndex].AttackPoint, AttackList[comboIndex].Radius);
+        //}
+
+        //starts with 0 index,  will play the first attack, if clicked within canStartCombo, waits till attack1 finishes and plays the next attack
         if (comboIndex == 0)
         {
-            StartAttackLogic(comboIndex, AttackList[comboIndex].AttackPoint, AttackList[comboIndex].Radius);
-            hasAttackStarted = true;
-            comboTimer = ComboWidow;
+            myAnim.SetTrigger("attack1");
+            comboIndex++;
         }
-        if (comboIndex!=0 && comboIndex < 3 && comboTimer > 0f)
+
+        if (comboIndex==1 && canStartCombo)
         {
-            StartAttackLogic(comboIndex, AttackList[comboIndex].AttackPoint, AttackList[comboIndex].Radius);
+            myAnim.SetTrigger("attack2");
+            comboIndex++;
         }
+        if(canStartCombo && comboIndex == 2)
+        {
+            myAnim.SetTrigger("attack3");
+            comboIndex = 0;
+        }
+        Debug.LogError(comboIndex);
+
     }
     private void OnAtatckCanceled(InputAction.CallbackContext context)
     {
-        if (comboIndex >= 3) 
+        if (comboIndex >= 3)
         {
             ResetCombo();
         }
-        if (comboIndex < 3)
-            comboIndex++;
+
     }
     private void OnJumpPerformed(InputAction.CallbackContext context)
     {
@@ -148,11 +168,6 @@ public class PlayerMovement : MonoBehaviour, IDamagable
     }
     void Update()
     {
-        if (hasAttackStarted)
-            comboTimer -= Time.deltaTime;
-        if (comboTimer <= 0)
-            ResetCombo();
-
         UpdateJumpTimer();
     }
     void FixedUpdate()
@@ -208,7 +223,7 @@ public class PlayerMovement : MonoBehaviour, IDamagable
     {
         return Physics2D.OverlapCircle(GroundCheckPoint.position, groundCheckRadius, groundLayer);
     }
-    void StartAttackLogic(int Index, Transform attackPoint, float radius)
+    public void StartAttackLogic(int Index, Transform attackPoint, float radius)
     {
         myAnim.SetTrigger((AttackList[comboIndex].TriggerName));
         Collider2D[]colls = Physics2D.OverlapCircleAll(AttackList[Index].AttackPoint.position, AttackList[Index].Radius, enemyLayer);
@@ -225,6 +240,47 @@ public class PlayerMovement : MonoBehaviour, IDamagable
         comboTimer = 0f;
         comboIndex = 0;
         hasAttackStarted = false;
+    }
+    public void AnimationEventComboStart()
+    {
+        canStartCombo = true;
+    }
+    public void AnimationEventComboFinish()
+    {
+        canStartCombo = false;
+    }
+    public void AnimationEventAttack1Detect()
+    {
+        Collider2D[] colls = Physics2D.OverlapCircleAll(AttackList[0].AttackPoint.position, AttackList[0].Radius, enemyLayer);
+        int currentDamage = PlayerStats.Damage;
+        bool isCrit = PlayerStats.RollCrit();
+        if (isCrit) currentDamage *= 2;
+        foreach (Collider2D x in colls)
+        {
+            x.GetComponent<EnemyWitch>().TakeDamage(currentDamage, isCrit);
+        }
+    }
+    public void AnimationEventAttack2Detect()
+    {
+        Collider2D[] colls = Physics2D.OverlapCircleAll(AttackList[1].AttackPoint.position, AttackList[1].Radius, enemyLayer);
+        int currentDamage = PlayerStats.Damage;
+        bool isCrit = PlayerStats.RollCrit();
+        if (isCrit) currentDamage *= 2;
+        foreach (Collider2D x in colls)
+        {
+            x.GetComponent<EnemyWitch>().TakeDamage(currentDamage, isCrit);
+        }
+    }
+    public void AnimationEventAttack3Detect()
+    {
+        Collider2D[] colls = Physics2D.OverlapCircleAll(AttackList[2].AttackPoint.position, AttackList[2].Radius, enemyLayer);
+        int currentDamage = PlayerStats.Damage;
+        bool isCrit = PlayerStats.RollCrit();
+        if (isCrit) currentDamage *= 2;
+        foreach (Collider2D x in colls)
+        {
+            x.GetComponent<EnemyWitch>().TakeDamage(currentDamage, isCrit);
+        }
     }
     public void AnimationEvent_EndBlock()
     {
