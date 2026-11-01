@@ -17,8 +17,10 @@ public class PlayerMovement : MonoBehaviour, IDamagable
     public float ComboWidow = 0.5f;
     private float comboTimer;
     private int comboIndex;
+
    [SerializeField] private bool canStartCombo = false;
     private bool hasAttackStarted = false;
+    bool clickRegister = false;
     public float AttackRadius1;
     public float AttackRadius2;
     public float AttackRadius3;
@@ -101,36 +103,28 @@ public class PlayerMovement : MonoBehaviour, IDamagable
     }
     private void OnAttackPerformed(InputAction.CallbackContext context)
     {
-        //if (comboIndex == 0)
-        //{
-        //    StartAttackLogic(comboIndex, AttackList[comboIndex].AttackPoint, AttackList[comboIndex].Radius);
-        //    hasAttackStarted = true;
-        //    comboTimer = ComboWidow;
-        //}
-        //if (comboIndex!=0 && comboIndex < 3 && comboTimer > 0f)
-        //{
-        //    StartAttackLogic(comboIndex, AttackList[comboIndex].AttackPoint, AttackList[comboIndex].Radius);
-        //}
-
         //starts with 0 index,  will play the first attack, if clicked within canStartCombo, waits till attack1 finishes and plays the next attack
-        if (comboIndex == 0)
+        if (comboIndex == 0 && hasAttackStarted==false)
         {
-            myAnim.SetTrigger("attack1");
-            comboIndex++;
+            StartFirstComboAttack();
         }
+        if (comboIndex > 0 && canStartCombo && clickRegister == false)
+        {
+            myAnim.SetTrigger(AttackList[comboIndex].TriggerName);
+            comboIndex++;
+            if (comboIndex >= 3)
+                ResetCombo();
 
-        if (comboIndex==1 && canStartCombo)
-        {
-            myAnim.SetTrigger("attack2");
-            comboIndex++;
-        }
-        if(canStartCombo && comboIndex == 2)
-        {
-            myAnim.SetTrigger("attack3");
-            comboIndex = 0;
+            clickRegister = true;
         }
         Debug.LogError(comboIndex);
-
+    }
+    void StartFirstComboAttack()
+    {
+        comboTimer = ComboWidow;
+        myAnim.SetTrigger(AttackList[comboIndex].TriggerName);
+        comboIndex++;
+        hasAttackStarted = true;
     }
     private void OnAtatckCanceled(InputAction.CallbackContext context)
     {
@@ -169,6 +163,15 @@ public class PlayerMovement : MonoBehaviour, IDamagable
     void Update()
     {
         UpdateJumpTimer();
+        if (hasAttackStarted)
+        {
+            comboTimer -= Time.deltaTime;
+            if (comboTimer <= 0)
+            {
+                hasAttackStarted = false;
+                ResetCombo();
+            }
+        }
     }
     void FixedUpdate()
     {
@@ -240,6 +243,7 @@ public class PlayerMovement : MonoBehaviour, IDamagable
         comboTimer = 0f;
         comboIndex = 0;
         hasAttackStarted = false;
+        clickRegister = false;
     }
     public void AnimationEventComboStart()
     {
